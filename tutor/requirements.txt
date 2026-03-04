@@ -1,0 +1,22 @@
+# Core ML Libraries
+torch>=1.9.0
+transformers>=4.20.0
+datasets>=2.0.0
+sentencepiece>=0.1.96
+
+# Data Processing
+pandas>=1.3.0
+numpy>=1.21.0
+
+# Utilities
+tqdm>=4.62.0
+scikit-learn>=0.24.0
+
+# For evaluation
+rouge-score>=0.1.2
+nltk>=3.6.0
+
+#Installed all the required libraries for the project and also setup the virtual environment.
+# To install these dependencies, I ran:
+# pip install -r requirements.txt
+#created project structure
