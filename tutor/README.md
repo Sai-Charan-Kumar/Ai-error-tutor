@@ -89,7 +89,7 @@ print(result. friendly_explanation)
 
 | Metric | Value |
 |--------|-------|
-| Error Detection Accuracy | 95%+ |
+| Error Detection Accuracy | 65%+ |
 | Average Response Time | <50ms |
 | Supported Error Types | 10 |
 
