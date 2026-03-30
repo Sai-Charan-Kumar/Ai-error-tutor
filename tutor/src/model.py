@@ -1,6 +1,5 @@
 """
 AI Model Module - T5-based error explanation model
-Phase 4:  Weeks 5-6 Deliverable
 """
 
 import torch
@@ -36,15 +35,25 @@ class ErrorDataset(Dataset):
 class ErrorExplainerModel:
     """T5-based model for generating friendly error explanations."""
 
-    def __init__(self, model_name: str = "t5-small"):
-        self.model_name = model_name
-        self.tokenizer = T5Tokenizer.from_pretrained(model_name)
-        self.model = T5ForConditionalGeneration.from_pretrained(model_name)
+        # Replace your current __init__ with this:
+    def __init__(self, model_path: str = None):
+        import torch
+        from transformers import AutoTokenizer, T5ForConditionalGeneration
+
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
+        load_path = model_path if model_path else "t5-small"
+        self.model_name = load_path
+        
+        # AutoTokenizer smartly loads tokenizer.json!
+        self.tokenizer = AutoTokenizer.from_pretrained(load_path)
+        self.model = T5ForConditionalGeneration.from_pretrained(load_path)
         self.model.to(self.device)
 
+    # Note: You can delete the `def load_model(self, path: str):` method entirely now!
+
     def train(self, train_dataset: Dataset, eval_dataset: Dataset,
-              output_dir: str = "./results", epochs: int = 10,
+              output_dir: str = "./models/error_tutor_model", epochs: int = 5,
               batch_size: int = 8, learning_rate: float = 3e-4):
         """
         Fine-tune the model on error explanation data.
@@ -90,7 +99,7 @@ class ErrorExplainerModel:
         return trainer
 
     def generate_explanation(self, error_type: str, error_message: str,
-                             code_context: str, max_length: int = 128) -> str:
+                             code_context: str, max_length: int = 256) -> str:
         """
         Generate a friendly explanation for an error.
 
@@ -118,10 +127,9 @@ class ErrorExplainerModel:
         outputs = self.model.generate(
             input_ids=inputs['input_ids'],
             attention_mask=inputs['attention_mask'],
-            max_length=max_length,
+            max_length=256,
             num_beams=4,
-            early_stopping=True,
-            no_repeat_ngram_size=2
+            early_stopping=True
         )
 
         explanation = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -148,7 +156,7 @@ class FallbackExplainer:
     EXPLANATIONS = {
         'SyntaxError': {
             'pattern': 'invalid syntax',
-            'explanation': "There's a syntax error in your code. Common causes include:  missing colons, unmatched parentheses, or incorrect indentation."
+            'explanation': "There's a syntax error in your code. Common causes include: missing colons, unmatched parentheses, or incorrect indentation."
         },
         'NameError': {
             'pattern': 'is not defined',
@@ -156,7 +164,7 @@ class FallbackExplainer:
         },
         'TypeError': {
             'pattern': 'unsupported operand',
-            'explanation': "You're trying to perform an operation with incompatible types.  Check if you need to convert types using str(), int(), or float()."
+            'explanation': "You're trying to perform an operation with incompatible types. Check if you need to convert types using str(), int(), or float()."
         },
         'IndexError': {
             'pattern': 'out of range',
@@ -164,11 +172,23 @@ class FallbackExplainer:
         },
         'KeyError': {
             'pattern': '',
-            'explanation': "You're trying to access a dictionary key that doesn't exist. Use . get() method or check if the key exists first."
+            'explanation': "You're trying to access a dictionary key that doesn't exist. Use .get() method or check if the key exists first."
         },
         'ValueError': {
             'pattern': 'invalid literal',
             'explanation': "The value you provided isn't valid for this operation. Check that your input matches the expected format."
+        },
+        'ZeroDivisionError': {
+            'pattern': 'division by zero',
+            'explanation': "You're trying to divide by zero, which is mathematically undefined. Check that your divisor is not zero."
+        },
+        'AttributeError': {
+            'pattern': 'has no attribute',
+            'explanation': "You're trying to use a method or property that doesn't exist for this type of object. Check the object type and available methods."
+        },
+        'IndentationError': {
+            'pattern': 'unexpected indent',
+            'explanation': "Your code indentation is inconsistent. Use 4 spaces for each indentation level and make sure all lines in the same block match."
         },
         'SecurityError': {
             'pattern': '',
