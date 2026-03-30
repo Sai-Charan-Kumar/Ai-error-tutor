@@ -1,3 +1,6 @@
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 """Configuration file for AI Error Tutor"""
 
 # Target Python Errors to Handle
@@ -26,9 +29,9 @@ MODEL_CONFIG = {
     "max_output_length":  128,
     "batch_size": 8,
     "learning_rate": 3e-4,
-    "epochs": 10
+    "epochs": 5
 }
 
 # Paths
 DATA_PATH = "data/error_dataset.csv"
-MODEL_SAVE_PATH = "models/error_tutor_model"
+MODEL_SAVE_PATH = os.path.join(BASE_DIR, "models", "error_tutor_model")
