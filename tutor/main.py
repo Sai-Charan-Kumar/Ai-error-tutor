@@ -2,13 +2,13 @@
 """
 AI Error Tutor - Streamlit GUI
 A friendly Python error message rewriter using AI
-
-Week 10: Full Pipeline Integration (Vibrant 'Neon Sunset' Theme - No Blue)
+ 
 """
 
 import streamlit as st
 import config
 from src.pipeline import AIErrorTutor
+from codecarbon import EmissionsTracker  # Imported CodeCarbon
 
 st.set_page_config(
     page_title="AI Error Tutor",
@@ -219,9 +219,9 @@ def render_code_with_highlight(code, error_line=None):
     for i, line in enumerate(lines, 1):
         escaped_line = (
             line.replace('&', '&amp;')
-                .replace('<', '&lt;')
-                .replace('>', '&gt;')
-                .replace('"', '&quot;')
+            .replace('<', '&lt;')
+            .replace('>', '&gt;')
+            .replace('"', '&quot;')
         )
 
         if not escaped_line:
@@ -306,7 +306,9 @@ if analyze_clicked and code.strip():
     st.markdown("### 💻 Output Terminal")
 
     with st.spinner("🤖 Interrogating the compiler..."):
-        result = tutor.analyze_code(code)
+        # Wrap AI execution in CodeCarbon context manager
+        with EmissionsTracker(project_name="AI_Error_Tutor_Analysis", log_level="error") as tracker:
+            result = tutor.analyze_code(code)
 
     # ─── Success Banner ───
     if result.success:
