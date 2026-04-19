@@ -11,6 +11,8 @@ numpy>=1.21.0
 # Utilities
 tqdm>=4.62.0
 scikit-learn>=0.24.0
+codecarbon>=2.3.1
+streamlit>=1.31.0
 
 # For evaluation
 rouge-score>=0.1.2
